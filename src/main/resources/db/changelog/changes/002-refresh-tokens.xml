@@ -5,33 +5,30 @@
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.3.xsd">
 
-    <changeSet id="001-create-users" author="Dev1">
+    <changeSet id="002-create-refresh-tokens" author="Dev1">
         <preConditions onFail="MARK_RAN">
             <not>
-                <tableExists tableName="users"/>
+                <tableExists tableName="refresh_tokens"/>
             </not>
         </preConditions>
 
-        <createTable tableName="users">
+        <createTable tableName="refresh_tokens">
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="email" type="VARCHAR(255)">
+            <column name="token" type="VARCHAR(512)">
                 <constraints unique="true" nullable="false"/>
             </column>
-            <column name="password" type="VARCHAR(255)">
+            <column name="user_id" type="UUID">
+                <constraints nullable="false" 
+                             foreignKeyName="fk_refresh_token_user" 
+                             referencedTableName="users" 
+                             referencedColumnNames="id"/>
+            </column>
+            <column name="expires_at" type="TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
-            <column name="role" type="VARCHAR(50)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true"/>
-            <column name="created_at" type="TIMESTAMP"/>
-            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="used" type="BOOLEAN" defaultValueBoolean="false"/>
         </createTable>
-
-        <createIndex indexName="idx_user_email" tableName="users" unique="true">
-            <column name="email"/>
-        </createIndex>
     </changeSet>
 </databaseChangeLog>
