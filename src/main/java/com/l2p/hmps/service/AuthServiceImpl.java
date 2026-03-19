@@ -37,17 +37,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        // 1. Check for duplicate email 
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AuthException("Email already registered", HttpStatus.CONFLICT, "AUTH_409");
         }
 
-        // 2. Validate Password Match (Requested Extra Field)
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             throw new AuthException("Passwords do not match", HttpStatus.BAD_REQUEST, "AUTH_400");
         }
 
-        // 3. Map DTO to Entity and Encode Password 
         User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         userRepository.save(user);
@@ -58,12 +55,21 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        // 1. Authenticate using Spring Security 
-        authenticationManager.authenticate(
+        try {
+            authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
-        );
+            );
+        } 
+        catch (org.springframework.security.authentication.DisabledException e) {
+            throw new AuthException("Your account is deactivated. Please contact Admin.", HttpStatus.FORBIDDEN, "AUTH_403");
+        } 
+        catch (org.springframework.security.authentication.LockedException e) {
+            throw new AuthException("Account is locked.", HttpStatus.FORBIDDEN, "AUTH_423");
+        } 
+        catch (org.springframework.security.core.AuthenticationException e) {
+            throw new AuthException("Invalid email or password", HttpStatus.UNAUTHORIZED, "AUTH_401");
+        }
 
-        // 2. Retrieve User
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new AuthException("User not found", HttpStatus.UNAUTHORIZED, "AUTH_401"));
 
@@ -73,7 +79,6 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse refreshToken(RefreshTokenRequest request) {
-        // 1. Find and validate the Refresh Token 
         RefreshToken token = refreshTokenRepository.findByToken(request.getRefreshToken())
                 .orElseThrow(() -> new AuthException("Invalid refresh token", HttpStatus.UNAUTHORIZED, "AUTH_401"));
 
@@ -81,13 +86,9 @@ public class AuthServiceImpl implements AuthService {
             throw new AuthException("Refresh token expired or used", HttpStatus.UNAUTHORIZED, "AUTH_401");
         }
 
-        // 2. Mark token as used (Single-use policy) [cite: 30, 36]
         token.setUsed(true);
         refreshTokenRepository.save(token);
-
-        // 3. Issue new Access Token
-        User user = userRepository.findById(token.getUserId())
-                .orElseThrow(() -> new AuthException("User not found", HttpStatus.UNAUTHORIZED, "AUTH_401"));
+        User user = token.getUser(); 
 
         return generateTokensAndResponse(user);
     }
@@ -95,8 +96,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public void logout(UUID userId) {
-        // Remove all active refresh tokens for the user 
-        refreshTokenRepository.deleteByUserId(userId);
+        refreshTokenRepository.deleteByUser_Id(userId);
     }
 
     @Override
@@ -105,29 +105,25 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AuthException("User not found", HttpStatus.NOT_FOUND, "AUTH_404"));
 
-        // 1. Verify current password 
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             throw new AuthException("Invalid current password", HttpStatus.BAD_REQUEST, "AUTH_400");
         }
 
-        // 2. Verify new password confirmation
         if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
             throw new AuthException("New passwords do not match", HttpStatus.BAD_REQUEST, "AUTH_400");
         }
 
-        // 3. Update and Save 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
     }
 
-    // Helper method to consolidate response generation
     private AuthResponse generateTokensAndResponse(User user) {
         String accessToken = jwtUtils.generateAccessToken(user); // 15 min 
         String refreshTokenStr = UUID.randomUUID().toString();
 
         RefreshToken refreshToken = RefreshToken.builder()
                 .token(refreshTokenStr)
-                .userId(user.getId())
+                .user(user)
                 .expiresAt(LocalDateTime.now().plusDays(7)) // 7 days 
                 .build();
         refreshTokenRepository.save(refreshToken);
