@@ -11,13 +11,16 @@ import com.l2p.hmps.model.Patient;
 public interface PatientMapper {
 
     // DTO -> Entity
-    @Mapping(target = "id", ignore = true) // usually generated
-    @Mapping(target = "nhsId", ignore = true) // auto-generated
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "nhsId", ignore = true)
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
-    Patient toEntity(PatientDTO dto);
 
+    @Mapping(target = "user", ignore = true)
+
+    Patient toEntity(PatientDTO dto);
     // Entity -> DTO
+    @Mapping(source = "user.id", target = "userId") // ✅ IMPORTANT
     PatientDTO toDTO(Patient patient);
 }

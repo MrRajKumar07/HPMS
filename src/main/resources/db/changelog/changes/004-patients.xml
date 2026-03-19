@@ -44,7 +44,7 @@
 
             <column name="insurance_info" type="TEXT"/>
 
-            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true"/>
+            <column name="active" type="BOOLEAN" defaultValueBoolean="true"/>
 
             <column name="created_at" type="TIMESTAMP"/>
 
@@ -71,7 +71,7 @@
         </createIndex>
 
         <createIndex indexName="idx_patients_is_active" tableName="patients">
-            <column name="is_active"/>
+            <column name="active"/>
         </createIndex>
 
     </changeSet>
