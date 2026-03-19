@@ -4,6 +4,7 @@ import com.l2p.hmps.model.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -17,9 +18,11 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
     
     // Used during logout to invalidate all active sessions for a user [cite: 34, 36]
     @Modifying
-    void deleteByUserId(UUID userId);
+    @Transactional
+    void deleteByUser_Id(UUID userId);
     
     // Called by a scheduled job to purge old tokens from the DB [cite: 34, 238]
     @Modifying
+    @Transactional
     void deleteByExpiresAtBefore(LocalDateTime now);
 }
