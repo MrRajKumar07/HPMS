@@ -23,7 +23,6 @@ public class PatientController {
 
     private final PatientService patientService;
 
-    // ✅ PUBLIC - Register Patient
     @PostMapping
     public ResponseEntity<ApiResponse<PatientDTO>> register(@Valid @RequestBody PatientDTO dto) {
         PatientDTO patient = patientService.register(dto);
@@ -33,19 +32,15 @@ public class PatientController {
         );
     }
 
-    // ✅ ADMIN / DOCTOR / RECEPTIONIST
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','RECEPTIONIST')")
     public ResponseEntity<ApiResponse<Page<PatientDTO>>> getAll(Pageable pageable) {
-
         Page<PatientDTO> patients = patientService.getAll(pageable);
-
         return ResponseEntity.ok(
                 ApiResponse.success("Patients fetched successfully", patients)
         );
     }
 
-    // ✅ SEARCH
     @GetMapping("/search")
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','RECEPTIONIST')")
     public ResponseEntity<ApiResponse<Page<PatientDTO>>> search(
@@ -59,55 +54,31 @@ public class PatientController {
         );
     }
 
-    // ✅ PATIENT (OWN PROFILE)
     @GetMapping("/me")
     @PreAuthorize("hasRole('PATIENT')")
-    public ResponseEntity<ApiResponse<PatientDTO>> getMyProfile(
-            @RequestParam UUID userId) {
-
+    public ResponseEntity<ApiResponse<PatientDTO>> getMyProfile(@RequestParam UUID userId) {
         PatientDTO patient = patientService.getByUserId(userId);
-
-        return ResponseEntity.ok(
-                ApiResponse.success("Patient profile fetched", patient)
-        );
+        return ResponseEntity.ok(ApiResponse.success("Patient profile fetched", patient));
     }
 
-    // ✅ GET BY ID
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','RECEPTIONIST')")
     public ResponseEntity<ApiResponse<PatientDTO>> getById(@PathVariable UUID id) {
-
-        PatientDTO patient = patientService.getByUserId(id); // ⚠️ hack
-
-        return ResponseEntity.ok(
-                ApiResponse.success("Patient fetched successfully", patient)
-        );
+        PatientDTO patient = patientService.getByUserId(id);
+        return ResponseEntity.ok(ApiResponse.success("Patient fetched successfully", patient));
     }
 
-    // ✅ UPDATE
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','PATIENT')")
-    public ResponseEntity<ApiResponse<PatientDTO>> update(
-            @PathVariable UUID id,
-            @Valid @RequestBody PatientDTO dto) {
-
+    public ResponseEntity<ApiResponse<PatientDTO>> update(@PathVariable UUID id, @Valid @RequestBody PatientDTO dto) {
         PatientDTO updated = patientService.update(id, dto);
-
-        return ResponseEntity.ok(
-                ApiResponse.success("Patient updated successfully", updated)
-        );
+        return ResponseEntity.ok(ApiResponse.success("Patient updated successfully", updated));
     }
 
-    // ✅ DELETE (SOFT DELETE)
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<String>> delete(
-            @PathVariable UUID id) {
-
+    public ResponseEntity<ApiResponse<String>> delete(@PathVariable UUID id) {
         patientService.delete(id);
-
-        return ResponseEntity.ok(
-                ApiResponse.success("Patient deleted successfully", null)
-        );
+        return ResponseEntity.ok(ApiResponse.success("Patient deleted successfully", null));
     }
 }

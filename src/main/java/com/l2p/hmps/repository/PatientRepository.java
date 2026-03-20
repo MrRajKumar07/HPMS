@@ -20,12 +20,10 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
 
     boolean existsByNhsId(String nhsId);
 
-    // ✅ UPDATED
     Optional<Patient> findByUser_Id(UUID userId);
 
     boolean existsByUser_Id(UUID userId);
 
-    // ✅ SEARCH
     @Query("""
         SELECT p FROM Patient p
         WHERE LOWER(p.firstName) LIKE LOWER(CONCAT('%', :q, '%'))
@@ -34,11 +32,10 @@ public interface PatientRepository extends JpaRepository<Patient, UUID> {
     """)
     Page<Patient> search(@Param("q") String q, Pageable pageable);
 
-    // ✅ DOCTOR PATIENT LIST
-//    @Query("""
-//        SELECT DISTINCT p FROM Patient p
-//        JOIN Appointment a ON a.patient.id = p.id
-//        WHERE a.doctor.id = :doctorId
-//    """)
-    //List<Patient> findPatientsForDoctor(@Param("doctorId") UUID doctorId);
+    @Query("""
+        SELECT DISTINCT p FROM Patient p
+        JOIN Appointment a ON a.patient.id = p.id
+        WHERE a.doctor.id = :doctorId
+    """)
+    List<Patient> findPatientsForDoctor(@Param("doctorId") UUID doctorId);
 }
