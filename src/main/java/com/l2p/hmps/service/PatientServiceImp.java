@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.l2p.hmps.dto.PatientDTO;
-import com.l2p.hmps.exception.PatientException; // ✅ UPDATED
+import com.l2p.hmps.exception.PatientException;
 import com.l2p.hmps.mapper.PatientMapper;
 import com.l2p.hmps.model.Patient;
 import com.l2p.hmps.repository.PatientRepository;
@@ -28,66 +28,38 @@ public class PatientServiceImp implements PatientService {
 
     @Override
     public PatientDTO register(PatientDTO patientDTO) {
-
         Patient patient = patientMapper.toEntity(patientDTO);
-
-        // 🔥 FETCH EXISTING USER (VERY IMPORTANT)
         User user = userRepository.findById(patientDTO.getUserId())
-                .orElseThrow(() -> new PatientException(
-                        "User not found with id: " + patientDTO.getUserId(),
-                        HttpStatus.NOT_FOUND,
-                        "USER_NOT_FOUND"
-                ));
-
-        // 🔥 SET USER
+                .orElseThrow(() -> new PatientException("User not found with id: " + patientDTO.getUserId(), HttpStatus.NOT_FOUND, "PATIENT_404"));
         patient.setUser(user);
-
         patient.setNhsId("NHS-" + System.currentTimeMillis());
-
         Patient savedPatient = patientRepository.save(patient);
-
         return patientMapper.toDTO(savedPatient);
     }
-    // Get patient by userId
+
     @Override
     public PatientDTO getByUserId(UUID userId) {
-
-        Patient patient = patientRepository.findByUser_Id(userId) // ✅ FIXED
-                .orElseThrow(() -> new PatientException( // ✅ UPDATED
-                        "Patient not found with userId: " + userId,
-                        HttpStatus.NOT_FOUND,
-                        "PATIENT_NOT_FOUND"
-                ));
-
+        Patient patient = patientRepository.findByUser_Id(userId)
+                .orElseThrow(() -> new PatientException("Patient not found with userId: " + userId, HttpStatus.NOT_FOUND, "PATIENT_404"));
         return patientMapper.toDTO(patient);
     }
 
-    // Get all patients
     @Override
     public Page<PatientDTO> getAll(Pageable pageable) {
-
         return patientRepository.findAll(pageable)
                 .map(patientMapper::toDTO);
     }
 
-    // Search patients
     @Override
     public Page<PatientDTO> search(String q, Pageable pageable) {
-
-        return patientRepository.search(q, pageable) // ✅ USE SEARCH
+        return patientRepository.search(q, pageable)
                 .map(patientMapper::toDTO);
     }
 
-    // Update patient
     @Override
     public PatientDTO update(UUID id, PatientDTO patientDTO) {
-
         Patient existingPatient = patientRepository.findById(id)
-                .orElseThrow(() -> new PatientException( // ✅ UPDATED
-                        "Patient not found with id: " + id,
-                        HttpStatus.NOT_FOUND,
-                        "PATIENT_NOT_FOUND"
-                ));
+                .orElseThrow(() -> new PatientException("Patient not found with id: " + id, HttpStatus.NOT_FOUND, "PATIENT_404"));
 
         // Partial update
         if (patientDTO.getFirstName() != null)
@@ -122,18 +94,10 @@ public class PatientServiceImp implements PatientService {
         return patientMapper.toDTO(updatedPatient);
     }
 
-    // Delete patient (Soft delete recommended)
     @Override
     public void delete(UUID id) {
-
         Patient patient = patientRepository.findById(id)
-                .orElseThrow(() -> new PatientException( // ✅ UPDATED
-                        "Patient not found with id: " + id,
-                        HttpStatus.NOT_FOUND,
-                        "PATIENT_NOT_FOUND"
-                ));
-
-        // ✅ SOFT DELETE (better than delete)
+                .orElseThrow(() -> new PatientException("Patient not found with id: " + id, HttpStatus.NOT_FOUND, "PATIENT_404"));
         patient.setActive(false);
         patientRepository.save(patient);
     }
