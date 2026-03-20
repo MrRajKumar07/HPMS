@@ -9,8 +9,6 @@ import com.l2p.hmps.model.Patient;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface PatientMapper {
-
-    // DTO -> Entity
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "nhsId", ignore = true)
     @Mapping(target = "active", ignore = true)
@@ -20,7 +18,6 @@ public interface PatientMapper {
     @Mapping(target = "user", ignore = true)
 
     Patient toEntity(PatientDTO dto);
-    // Entity -> DTO
-    @Mapping(source = "user.id", target = "userId") // ✅ IMPORTANT
+    @Mapping(source = "user.id", target = "userId")
     PatientDTO toDTO(Patient patient);
 }
