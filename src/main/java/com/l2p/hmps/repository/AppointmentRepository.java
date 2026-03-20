@@ -1,6 +1,7 @@
 package com.l2p.hmps.repository;
 
 import com.l2p.hmps.model.Appointment;
+import com.l2p.hmps.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDate;
@@ -11,9 +12,8 @@ import java.util.UUID;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, UUID> {
 
-    boolean existsByDoctorIdAndAppointmentDateAndAppointmentTime(UUID doctorId, LocalDate appointmentDate,LocalTime appointmentTime );
+//    boolean existsByDoctorIdAndAppointmentDateAndAppointmentTime(UUID doctorId, LocalDate appointmentDate,LocalTime appointmentTime );
 
-    List<Appointment> findByPatientId(UUID patientId);
-
-    List<Appointment> findByDoctorId(UUID doctorId);
+    List<Appointment> findByPatient(User patient);
+//    List<Appointment> findByDoctorId(UUID doctorId);
 }

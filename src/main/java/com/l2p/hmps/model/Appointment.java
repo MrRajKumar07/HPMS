@@ -1,73 +1,56 @@
 package com.l2p.hmps.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 
-@Data
 @Entity
 @Table(name = "appointments")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Appointment {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    // ✅ Use IDs (independent running)
-    @NotNull
-    @Column(name = "patient_id", nullable = false)
-    private UUID patientId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id", nullable = false)
+    private User patient;
 
-    @NotNull
-    @Column(name = "doctor_id", nullable = false)
-    private UUID doctorId;
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "doctor_id", nullable = false)
+//    private User doctor;
 
-    @NotNull
-    @FutureOrPresent
+    @Column(name = "appointment_date", nullable = false)
     private LocalDate appointmentDate;
 
-    @NotNull
+    @Column(name = "appointment_time", nullable = false)
     private LocalTime appointmentTime;
 
+    @Column(nullable = false)
+    private String slot;
+
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private AppointmentType type;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private AppointmentStatus status = AppointmentStatus.PENDING;
 
     private String reason;
 
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    public enum AppointmentType {
-        IN_PERSON,
-        VIDEO,
-        PHONE
-    }
-
-    public enum AppointmentStatus {
-        PENDING,
-        CONFIRMED,
-        IN_PROGRESS,
-        COMPLETED,
-        CANCELLED,
-        NO_SHOW
-    }
-
-    @PrePersist
-    public void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 }

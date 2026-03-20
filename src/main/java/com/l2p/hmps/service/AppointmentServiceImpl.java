@@ -1,10 +1,13 @@
 package com.l2p.hmps.service;
 
 import com.l2p.hmps.dto.BookAppointmentRequest;
-import com.l2p.hmps.exception.AuthException;
+import com.l2p.hmps.exception.AppointmentException;
 import com.l2p.hmps.mapper.AppointmentMapper;
 import com.l2p.hmps.model.Appointment;
+import com.l2p.hmps.model.AppointmentStatus;
+import com.l2p.hmps.model.User;
 import com.l2p.hmps.repository.AppointmentRepository;
+import com.l2p.hmps.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -18,37 +21,30 @@ import java.util.UUID;
 public class AppointmentServiceImpl implements AppointmentService {
 
     private final AppointmentRepository appointmentRepository;
+    private final UserRepository userRepository;
+    private final AppointmentMapper appointmentMapper;
 
     @Override
     @Transactional
     public Appointment bookAppointment(BookAppointmentRequest request) {
+        User patient = userRepository.findById(request.getPatientId())
+                .orElseThrow(() -> new AppointmentException(
+                        "Patient not found",
+                        HttpStatus.NOT_FOUND,
+                        "APPT_404"
+                ));
 
-        boolean slotTaken = appointmentRepository
-                .existsByDoctorIdAndAppointmentDateAndAppointmentTime(
-                        request.getDoctorId(),
-                        request.getAppointmentDate(),
-                        request.getAppointmentTime()
-                );
-
-        if (slotTaken) {
-            throw new AuthException(
-                    "Appointment slot is already booked for this doctor.",
-                    HttpStatus.CONFLICT,
-                    "APPT_409"
-            );
-        }
-
-        Appointment appointment = AppointmentMapper.toEntity(request);
+        Appointment appointment = appointmentMapper.toEntity(request);
+        appointment.setPatient(patient);
 
         return appointmentRepository.save(appointment);
     }
-
 
     @Override
     @Transactional(readOnly = true)
     public Appointment getAppointmentById(UUID appointmentId) {
         return appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new AuthException(
+                .orElseThrow(() -> new AppointmentException(
                         "Appointment not found",
                         HttpStatus.NOT_FOUND,
                         "APPT_404"
@@ -58,42 +54,41 @@ public class AppointmentServiceImpl implements AppointmentService {
     @Override
     @Transactional(readOnly = true)
     public List<Appointment> getAppointmentsByPatient(UUID patientId) {
-        return appointmentRepository.findByPatientId(patientId);
+        User patient = userRepository.findById(patientId)
+                .orElseThrow(() -> new AppointmentException(
+                        "Patient not found",
+                        HttpStatus.NOT_FOUND,
+                        "APPT_404"
+                ));
+
+        return appointmentRepository.findByPatient(patient);
     }
 
+//    @Override
+//    @Transactional(readOnly = true)
+//    public List<Appointment> getAppointmentsByDoctor(UUID doctorId) {
+//        return appointmentRepository.findByDoctorId(doctorId);
+//    }
 
-    @Override
-
-    @Transactional(readOnly = true)
-    public List<Appointment> getAppointmentsByDoctor(UUID doctorId) {
-        return appointmentRepository.findByDoctorId(doctorId);
-    }
-
-    /**
-     * Cancel an appointment by ID
-     */
     @Override
     @Transactional
     public Appointment cancelAppointment(UUID appointmentId) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new AuthException(
+                .orElseThrow(() -> new AppointmentException(
                         "Appointment not found",
                         HttpStatus.NOT_FOUND,
                         "APPT_404"
                 ));
 
-        appointment.setStatus(Appointment.AppointmentStatus.CANCELLED);
+        appointment.setStatus(AppointmentStatus.CANCELLED);
         return appointmentRepository.save(appointment);
     }
 
-    /**
-     * Update appointment status
-     */
     @Override
     @Transactional
-    public Appointment updateAppointmentStatus(UUID appointmentId, Appointment.AppointmentStatus status) {
+    public Appointment updateAppointmentStatus(UUID appointmentId, AppointmentStatus status) {
         Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new AuthException(
+                .orElseThrow(() -> new AppointmentException(
                         "Appointment not found",
                         HttpStatus.NOT_FOUND,
                         "APPT_404"
