@@ -29,8 +29,8 @@ public class AuthController {
     public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
         AuthResponse response = authService.register(request);
         return new ResponseEntity<>(
-            ApiResponse.success("User registered successfully", response), 
-            HttpStatus.CREATED
+                ApiResponse.success("User registered successfully", response),
+                HttpStatus.CREATED
         );
     }
 
@@ -60,16 +60,16 @@ public class AuthController {
         authService.changePassword(userId, request);
         return ResponseEntity.ok(ApiResponse.success("Password changed successfully", null));
     }
-   
-//     Admin-Led Registration (ADMIN ONLY)
-//     Requirement: Admin can register staff with temporary passwords.  
+
+    //     Admin-Led Registration (ADMIN ONLY)
+//     Requirement: Admin can register staff with temporary passwords.
     @PostMapping("/admin/register-staff")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<AuthResponse>> adminRegister(@Valid @RequestBody RegisterRequest request) {
         AuthResponse response = authService.register(request);
         return new ResponseEntity<>(
-            ApiResponse.success("Staff member registered by admin", response), 
-            HttpStatus.CREATED
+                ApiResponse.success("Staff member registered by admin", response),
+                HttpStatus.CREATED
         );
     }
 }
