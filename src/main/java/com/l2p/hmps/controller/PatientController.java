@@ -25,11 +25,8 @@ public class PatientController {
 
     // ✅ PUBLIC - Register Patient
     @PostMapping
-    public ResponseEntity<ApiResponse<PatientDTO>> register(
-            @Valid @RequestBody PatientDTO dto) {
-
+    public ResponseEntity<ApiResponse<PatientDTO>> register(@Valid @RequestBody PatientDTO dto) {
         PatientDTO patient = patientService.register(dto);
-
         return new ResponseEntity<>(
                 ApiResponse.success("Patient registered successfully", patient),
                 HttpStatus.CREATED
