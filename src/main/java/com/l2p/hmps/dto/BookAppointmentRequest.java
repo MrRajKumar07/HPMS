@@ -17,8 +17,8 @@ public class BookAppointmentRequest {
     @NotNull(message = "Patient id is required")
     private UUID patientId;
 
-//    @NotNull(message = "Doctor id is required")
-//    private UUID doctorId;
+    @NotNull(message = "Doctor id is required")
+    private UUID doctorId;
 
     @NotNull(message = "Appointment date is required")
     @FutureOrPresent(message = "Appointment date must be today or in the future")
