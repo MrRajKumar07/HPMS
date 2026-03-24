@@ -2,11 +2,14 @@ package com.l2p.hmps.controller;
 
 import java.util.UUID;
 
+import com.l2p.hmps.model.User;
+import com.l2p.hmps.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import com.l2p.hmps.dto.ApiResponse;
@@ -22,6 +25,8 @@ import lombok.RequiredArgsConstructor;
 public class PatientController {
 
     private final PatientService patientService;
+
+    private final UserRepository userRepository;
 
     @PostMapping
     public ResponseEntity<ApiResponse<PatientDTO>> register(@Valid @RequestBody PatientDTO dto) {
@@ -56,8 +61,13 @@ public class PatientController {
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('PATIENT')")
-    public ResponseEntity<ApiResponse<PatientDTO>> getMyProfile(@RequestParam UUID userId) {
-        PatientDTO patient = patientService.getByUserId(userId);
+    public ResponseEntity<ApiResponse<PatientDTO>> getMyProfile(Authentication authentication) {
+        String email = authentication.getName();
+
+        // 🔥 get userId from User table
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+
+        PatientDTO patient = patientService.getByUserId(user.getId());
         return ResponseEntity.ok(ApiResponse.success("Patient profile fetched", patient));
     }
 

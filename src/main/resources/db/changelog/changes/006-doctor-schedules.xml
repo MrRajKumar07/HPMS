@@ -1,0 +1,47 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="006-create-doctor-schedules" author="Dev2">
+
+        <createTable tableName="doctor_schedules">
+
+            <column name="id" type="UUID">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="doctor_id" type="UUID">
+                <constraints nullable="false"
+                             foreignKeyName="fk_schedule_doctor"
+                             referencedTableName="doctors"
+                             referencedColumnNames="id"
+                             deleteCascade="true"/>
+            </column>
+
+            <column name="day_of_week" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="start_time" type="TIME"/>
+            <column name="end_time" type="TIME"/>
+
+            <column name="slot_duration_minutes" type="INT" defaultValueNumeric="30"/>
+
+        </createTable>
+
+        <!-- Unique constraint -->
+        <addUniqueConstraint
+                tableName="doctor_schedules"
+                columnNames="doctor_id, day_of_week"
+                constraintName="uk_doctor_day"/>
+
+        <!-- Index -->
+        <createIndex tableName="doctor_schedules" indexName="idx_schedule_doctor">
+            <column name="doctor_id"/>
+        </createIndex>
+
+    </changeSet>
+
+</databaseChangeLog>
