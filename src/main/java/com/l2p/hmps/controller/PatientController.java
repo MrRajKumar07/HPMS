@@ -64,7 +64,6 @@ public class PatientController {
     public ResponseEntity<ApiResponse<PatientDTO>> getMyProfile(Authentication authentication) {
         String email = authentication.getName();
 
-        // 🔥 get userId from User table
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
 
         PatientDTO patient = patientService.getByUserId(user.getId());
