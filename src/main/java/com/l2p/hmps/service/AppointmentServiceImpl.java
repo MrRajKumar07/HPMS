@@ -64,11 +64,11 @@ public class AppointmentServiceImpl implements AppointmentService {
         return appointmentRepository.findByPatient(patient);
     }
 
-//    @Override
-//    @Transactional(readOnly = true)
-//    public List<Appointment> getAppointmentsByDoctor(UUID doctorId) {
-//        return appointmentRepository.findByDoctorId(doctorId);
-//    }
+    @Override
+    @Transactional(readOnly = true)
+    public List<Appointment> getAppointmentsByDoctor(UUID doctorId) {
+        return appointmentRepository.findByDoctorId(doctorId);
+    }
 
     @Override
     @Transactional

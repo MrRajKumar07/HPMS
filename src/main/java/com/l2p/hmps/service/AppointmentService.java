@@ -11,7 +11,7 @@ public interface AppointmentService {
     Appointment bookAppointment(BookAppointmentRequest request);
     Appointment getAppointmentById(UUID appointmentId);
     List<Appointment> getAppointmentsByPatient(UUID patientId);
-//    List<Appointment> getAppointmentsByDoctor(UUID doctorId);
+    List<Appointment> getAppointmentsByDoctor(UUID doctorId);
     Appointment cancelAppointment(UUID appointmentId);
     Appointment updateAppointmentStatus(UUID appointmentId, AppointmentStatus status);
 }

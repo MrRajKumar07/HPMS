@@ -9,5 +9,7 @@
     <include file="db/changelog/changes/002-refresh-tokens.xml"/>
     <include file="db/changelog/changes/004-patients.xml"/>
     <include file="db/changelog/changes/007-appointments.xml"/>
+    <include file="db/changelog/changes/008-medical-records.xml"/>
+    <include file="db/changelog/changes/009-prescriptions.xml"/>
 
 </databaseChangeLog>
