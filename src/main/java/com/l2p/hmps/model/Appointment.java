@@ -25,9 +25,9 @@ public class Appointment {
     @JoinColumn(name = "patient_id", nullable = false)
     private User patient;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "doctor_id", nullable = false)
-//    private User doctor;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "doctor_id", nullable = false)
+    private User doctor;
 
     @Column(name = "appointment_date", nullable = false)
     private LocalDate appointmentDate;
