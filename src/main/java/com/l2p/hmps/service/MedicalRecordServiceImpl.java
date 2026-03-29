@@ -108,6 +108,21 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Page<MedicalRecordResponse> getByPatientEmail(String email, int page, int size) {
+        User patient = userRepository.findByEmail(email)
+                .orElseThrow(() -> new MedicalRecordException(
+                        "Patient not found with email: " + email,
+                        HttpStatus.NOT_FOUND,
+                        "MR_404"
+                ));
+
+        return medicalRecordRepository
+                .findByPatientOrderByVisitDateDesc(patient, PageRequest.of(page, size))
+                .map(medicalRecordMapper::toResponse);
+    }
+
+    @Override
     @Transactional
     public MedicalRecordResponse addVitals(UUID id, VitalsRequest request) {
         MedicalRecord medicalRecord = medicalRecordRepository.findById(id)
