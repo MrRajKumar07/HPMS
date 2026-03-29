@@ -9,9 +9,6 @@ import java.util.List;
 import java.util.UUID;
 
 public interface AppointmentService {
-
-    // 🔹 ENTITY METHODS (Internal / Business Logic)
-
     Appointment bookAppointment(BookAppointmentRequest request);
 
     Appointment getAppointmentById(UUID appointmentId);

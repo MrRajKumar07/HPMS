@@ -107,6 +107,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
                 .map(medicalRecordMapper::toResponse);
     }
 
+    // ✅ NEW
     @Override
     @Transactional(readOnly = true)
     public Page<MedicalRecordResponse> getByPatientEmail(String email, int page, int size) {
