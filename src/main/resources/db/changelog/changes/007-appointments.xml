@@ -23,9 +23,9 @@
                 <constraints nullable="false" foreignKeyName="fk_appointment_patient" references="users(id)"/>
             </column>
 
-            <!--            <column name="doctor_id" type="UUID">
-                            <constraints nullable="false" foreignKeyName="fk_appointment_doctor" references="users(id)"/>
-                        </column>-->
+            <column name="doctor_id" type="UUID">
+                <constraints nullable="false" foreignKeyName="fk_appointment_doctor" references="users(id)"/>
+            </column>
 
             <column name="appointment_date" type="DATE">
                 <constraints nullable="false"/>
