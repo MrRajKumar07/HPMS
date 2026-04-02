@@ -13,6 +13,7 @@
             </not>
         </preConditions>
 
+        <!-- 🔴 TABLE -->
         <createTable tableName="appointments">
 
             <column name="id" type="UUID">
@@ -20,12 +21,12 @@
             </column>
 
             <column name="patient_id" type="UUID">
-                <constraints nullable="false" foreignKeyName="fk_appointment_patient" references="users(id)"/>
+                <constraints nullable="false"/>
             </column>
 
-            <!--            <column name="doctor_id" type="UUID">
-                            <constraints nullable="false" foreignKeyName="fk_appointment_doctor" references="users(id)"/>
-                        </column>-->
+            <column name="doctor_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
 
             <column name="appointment_date" type="DATE">
                 <constraints nullable="false"/>
@@ -47,20 +48,43 @@
                 <constraints nullable="false"/>
             </column>
 
-            <column name="reason" type="VARCHAR(255)"/>
+            <column name="reason" type="TEXT"/>
+            <column name="notes" type="TEXT"/>
+            <column name="cancellation_reason" type="TEXT"/>
 
-            <column name="created_at" type="TIMESTAMP"/>
-            <column name="updated_at" type="TIMESTAMP"/>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+
+            <column name="updated_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
 
         </createTable>
 
+        <!-- 🔴 FOREIGN KEYS (CORRECT WAY) -->
+        <addForeignKeyConstraint
+                baseTableName="appointments"
+                baseColumnNames="patient_id"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                constraintName="fk_appointment_patient"/>
+
+        <addForeignKeyConstraint
+                baseTableName="appointments"
+                baseColumnNames="doctor_id"
+                referencedTableName="users"
+                referencedColumnNames="id"
+                constraintName="fk_appointment_doctor"/>
+
+        <!-- 🔴 INDEX (OPTIONAL BUT GOOD) -->
         <createIndex indexName="idx_appointment_patient" tableName="appointments">
             <column name="patient_id"/>
         </createIndex>
 
-        <!--        <createIndex indexName="idx_appointment_doctor" tableName="appointments">
-                    <column name="doctor_id"/>
-                </createIndex>-->
+        <createIndex indexName="idx_appointment_doctor" tableName="appointments">
+            <column name="doctor_id"/>
+        </createIndex>
 
     </changeSet>
 
