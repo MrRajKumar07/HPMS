@@ -6,9 +6,7 @@
 
     <changeSet id="003-create-departments" author="Dev2">
 
-        <!-- ✅ CREATE TABLE -->
         <createTable tableName="departments">
-
             <column name="id" type="UUID">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -21,22 +19,10 @@
 
             <column name="head_doctor_id" type="UUID"/>
 
-            <column name="active" type="BOOLEAN" defaultValueBoolean="true"/>
-
-            <!-- ✅ FIX: ADD TIMESTAMPS -->
+            <column name="is_active" type="BOOLEAN" defaultValueBoolean="true"/>
             <column name="created_at" type="TIMESTAMP"/>
             <column name="updated_at" type="TIMESTAMP"/>
-
         </createTable>
-
-        <!-- ✅ INDEXES (optional but good) -->
-        <createIndex tableName="departments" indexName="idx_department_name">
-            <column name="name"/>
-        </createIndex>
-
-        <createIndex tableName="departments" indexName="idx_department_head">
-            <column name="head_doctor_id"/>
-        </createIndex>
 
     </changeSet>
 
