@@ -2,7 +2,6 @@ package com.l2p.hmps.mapper;
 
 import com.l2p.hmps.dto.AppointmentResponse;
 import com.l2p.hmps.dto.BookAppointmentRequest;
-import com.l2p.hmps.dto.UpdateAppointmentRequest;
 import com.l2p.hmps.model.Appointment;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
